@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issuerr - Initial Setup</title>
+    <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#ff7f50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Issuerr">
+    <link rel="apple-touch-icon" href="/static/images/issuerr-logo-192.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .setup-container {
+            background: #252525;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 480px;
+            padding: 40px;
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+        }
+        
+        .app-name {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ff7f50;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        
+        .app-tagline {
+            color: #8b8b8b;
+            font-size: 14px;
+        }
+        
+        .setup-header {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 127, 80, 0.1);
+            border: 1px solid rgba(255, 127, 80, 0.3);
+            border-radius: 6px;
+        }
+        
+        .setup-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ff7f50;
+            margin-bottom: 8px;
+        }
+        
+        .setup-description {
+            color: #c4c4c4;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .setup-form {
+            margin-top: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        label {
+            display: block;
+            color: #c4c4c4;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .label-note {
+            font-size: 12px;
+            color: #8b8b8b;
+            font-weight: 400;
+            margin-left: 4px;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 14px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #ff7f50;
+            background: #202020;
+        }
+        
+        input[type="text"]::placeholder,
+        input[type="password"]::placeholder {
+            color: #666;
+        }
+        
+        .password-requirements {
+            margin-top: 6px;
+            padding: 10px;
+            background: rgba(255, 127, 80, 0.05);
+            border-left: 2px solid rgba(255, 127, 80, 0.3);
+            border-radius: 2px;
+        }
+        
+        .password-requirements ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #8b8b8b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        
+        .password-strength-container {
+            margin-top: 8px;
+        }
+        
+        .password-strength-bar-wrapper {
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            border-radius: 3px;
+        }
+        
+        .strength-0 { width: 0%; background: transparent; }
+        .strength-1 { width: 25%; background: #dc3545; }
+        .strength-2 { width: 50%; background: #ffc107; }
+        .strength-3 { width: 75%; background: #17a2b8; }
+        .strength-4 { width: 100%; background: #28a745; }
+        
+        .password-strength-feedback {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 18px;
+        }
+        
+        .strength-text {
+            font-weight: 600;
+        }
+        
+        .strength-text-0 { color: #666; }
+        .strength-text-1 { color: #dc3545; }
+        .strength-text-2 { color: #ffc107; }
+        .strength-text-3 { color: #17a2b8; }
+        .strength-text-4 { color: #28a745; }
+        
+        .strength-warning {
+            color: #ff6b6b;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        
+        .strength-suggestions {
+            color: #8b8b8b;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        
+        .strength-crack-time {
+            color: #666;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        
+        .btn-setup {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff7f50 0%, #ff6347 100%);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+        
+        .btn-setup:hover {
+            background: linear-gradient(135deg, #ff8c5a 0%, #ff7057 100%);
+            box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .btn-setup:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 4px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .error-icon {
+            font-size: 18px;
+        }
+        
+        .security-note {
+            text-align: center;
+            margin-top: 24px;
+            padding: 15px;
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 4px;
+        }
+        
+        .security-note-title {
+            color: #4caf50;
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .security-note-text {
+            color: #8b8b8b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .setup-container {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="logo-container">
+            <img src="/static/images/issuerr-logo.png" alt="Issuerr Logo" class="logo" onerror="this.style.display='none'">
+            <div class="app-name">issuerr</div>
+            <div class="app-tagline">Overseerr Issue Handler</div>
+        </div>
+        
+        <div class="setup-header">
+            <div class="setup-title">🔐 Initial Setup Required</div>
+            <div class="setup-description">
+                Welcome! Before you can use Issuerr, please create your administrator account.
+            </div>
+        </div>
+        
+        {% if error %}
+        <div class="error-message">
+            <span class="error-icon">⚠</span>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+        
+        <form method="POST" class="setup-form">
+            <div class="form-group">
+                <label for="username">
+                    Username
+                    <span class="label-note">(minimum 3 characters)</span>
+                </label>
+                <input type="text" id="username" name="username" placeholder="Choose a username" required autofocus minlength="3">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">
+                    Password
+                    <span class="label-note">(minimum 8 characters)</span>
+                </label>
+                <input type="password" id="password" name="password" placeholder="Choose a strong password" required minlength="8">
+                
+                <!-- Password Strength Meter -->
+                <div class="password-strength-container" id="strength-container" style="display: none;">
+                    <div class="password-strength-bar-wrapper">
+                        <div class="password-strength-bar strength-0" id="strength-bar"></div>
+                    </div>
+                    <div class="password-strength-feedback">
+                        <span class="strength-text strength-text-0" id="strength-text">Checking...</span>
+                        <span id="strength-icon"></span>
+                    </div>
+                    <div class="strength-warning" id="strength-warning"></div>
+                    <div class="strength-suggestions" id="strength-suggestions"></div>
+                    <div class="strength-crack-time" id="strength-crack-time"></div>
+                </div>
+                
+                <div class="password-requirements">
+                    <ul>
+                        <li>Password strength is checked in real-time</li>
+                        <li>Weak passwords will be rejected</li>
+                        <li>Consider using a password manager</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter your password" required minlength="8">
+            </div>
+            
+            <button type="submit" class="btn-setup">Complete Setup</button>
+        </form>
+        
+        <div class="security-note">
+            <div class="security-note-title">
+                <span>🔒</span>
+                <span>Security Notice</span>
+            </div>
+            <div class="security-note-text">
+                These credentials will be used to access the Issuerr dashboard. Store them securely and never share them.
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let strengthCheckTimeout = null;
+        
+        // Password strength checking
+        const passwordInput = document.getElementById('password');
+        const usernameInput = document.getElementById('username');
+        const strengthContainer = document.getElementById('strength-container');
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthText = document.getElementById('strength-text');
+        const strengthIcon = document.getElementById('strength-icon');
+        const strengthWarning = document.getElementById('strength-warning');
+        const strengthSuggestions = document.getElementById('strength-suggestions');
+        const strengthCrackTime = document.getElementById('strength-crack-time');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            
+            // Clear previous timeout
+            if (strengthCheckTimeout) {
+                clearTimeout(strengthCheckTimeout);
+            }
+            
+            if (!password) {
+                strengthContainer.style.display = 'none';
+                return;
+            }
+            
+            strengthContainer.style.display = 'block';
+            strengthText.textContent = 'Checking...';
+            strengthText.className = 'strength-text strength-text-0';
+            strengthBar.className = 'password-strength-bar strength-0';
+            strengthIcon.textContent = '';
+            
+            // Debounce API calls (wait 500ms after user stops typing)
+            strengthCheckTimeout = setTimeout(() => {
+                checkPasswordStrength(password, usernameInput.value);
+            }, 500);
+        });
+        
+        async function checkPasswordStrength(password, username) {
+            try {
+                const response = await fetch('/api/check-password-strength', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password, username })
+                });
+                
+                const data = await response.json();
+                
+                // Update strength bar
+                strengthBar.className = `password-strength-bar strength-${data.score}`;
+                
+                // Update strength text
+                strengthText.textContent = data.score_text;
+                strengthText.className = `strength-text strength-text-${data.score}`;
+                
+                // Update icon
+                if (data.is_acceptable) {
+                    strengthIcon.textContent = '✓';
+                } else {
+                    strengthIcon.textContent = '✗';
+                }
+                
+                // Update warning
+                if (data.warning) {
+                    strengthWarning.textContent = `⚠️ ${data.warning}`;
+                    strengthWarning.style.display = 'block';
+                } else {
+                    strengthWarning.style.display = 'none';
+                }
+                
+                // Update suggestions
+                if (data.suggestions && data.suggestions.length > 0) {
+                    strengthSuggestions.textContent = `💡 ${data.suggestions.join('. ')}`;
+                    strengthSuggestions.style.display = 'block';
+                } else {
+                    strengthSuggestions.style.display = 'none';
+                }
+                
+                // Update crack time
+                if (data.crack_time && data.is_acceptable) {
+                    strengthCrackTime.textContent = `⏱️ Time to crack: ${data.crack_time}`;
+                    strengthCrackTime.style.display = 'block';
+                } else {
+                    strengthCrackTime.style.display = 'none';
+                }
+                
+            } catch (error) {
+                console.error('Error checking password strength:', error);
+                strengthText.textContent = 'Error checking strength';
+                strengthText.className = 'strength-text strength-text-0';
+            }
+        }
+        
+        // Form validation
+        document.querySelector('.setup-form').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+            }
+        });
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js')
+                .then((registration) => {
+                    console.log('ServiceWorker registered:', registration.scope);
+                })
+                .catch((error) => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+        }
+    </script>
+</body>
+</html>

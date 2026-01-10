@@ -1,0 +1,136 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the form below.
+        
+  - type: checkboxes
+    id: existing
+    attributes:
+      label: Prerequisites
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported
+          required: true
+        - label: I am using the latest version of Issuerr
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: When I try to... the application does...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Please paste relevant logs here (check the Logs tab in the dashboard)
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: Issuerr Version
+      description: What version of Issuerr are you running?
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: docker
+    attributes:
+      label: Docker Version
+      description: Output of `docker --version`
+      placeholder: "Docker version 24.0.0"
+
+  - type: dropdown
+    id: host-os
+    attributes:
+      label: Host Operating System
+      options:
+        - Ubuntu 22.04
+        - Ubuntu 24.04
+        - Debian 11
+        - Debian 12
+        - CentOS/RHEL 8
+        - CentOS/RHEL 9
+        - Unraid
+        - TrueNAS Scale
+        - Synology DSM
+        - Other Linux
+        - Windows (WSL2)
+        - macOS
+    validations:
+      required: true
+
+  - type: input
+    id: overseerr-version
+    attributes:
+      label: Overseerr Version
+      placeholder: "1.33.0"
+
+  - type: input
+    id: sonarr-version
+    attributes:
+      label: Sonarr Version
+      placeholder: "4.0.0"
+
+  - type: input
+    id: radarr-version
+    attributes:
+      label: Radarr Version
+      placeholder: "5.0.0"
+
+  - type: dropdown
+    id: reverse-proxy
+    attributes:
+      label: Reverse Proxy
+      options:
+        - None (direct access)
+        - Nginx
+        - Traefik
+        - Caddy
+        - HAProxy
+        - Other
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here (screenshots, config snippets, etc.)

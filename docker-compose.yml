@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  issuerr:
+    build: .
+    container_name: issuerr
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./config:/config
+    restart: unless-stopped
+    environment:
+      - TZ=Australia/Melbourne  # Set your timezone
+      - PUID=1000  # User ID - change to match your user
+      - PGID=1000  # Group ID - change to match your user
+    networks:
+      - arr-stack
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+
+networks:
+  arr-stack:
+    driver: bridge
+    internal: false  # Set to true if you only access via reverse proxy on same host

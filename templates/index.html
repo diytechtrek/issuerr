@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Issuerr - Overseerr Issue Handler</title>
+    <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#ff7f50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Issuerr">
+    <link rel="apple-touch-icon" href="/static/images/issuerr-logo-192.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: #252525;
+            border-right: 1px solid #333;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+        }
+        
+        .app-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff7f50;
+            letter-spacing: -0.5px;
+        }
+        
+        .nav-menu {
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            color: #8b8b8b;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 127, 80, 0.1);
+            color: #ff7f50;
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 127, 80, 0.15);
+            color: #ff7f50;
+            border-left: 3px solid #ff7f50;
+            padding-left: 17px;
+        }
+        
+        .nav-icon {
+            font-size: 18px;
+            width: 20px;
+        }
+        
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 15px 20px;
+            border-top: 1px solid #333;
+            background: #252525;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #8b8b8b;
+        }
+        
+        .btn-logout {
+            width: 100%;
+            padding: 8px;
+            background: rgba(255, 127, 80, 0.1);
+            border: 1px solid rgba(255, 127, 80, 0.3);
+            border-radius: 4px;
+            color: #ff7f50;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255, 127, 80, 0.2);
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 220px;
+            flex: 1;
+            padding: 30px;
+            min-height: 100vh;
+        }
+        
+        .page-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+        }
+        
+        .page-subtitle {
+            color: #8b8b8b;
+            font-size: 14px;
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .status-card {
+            background: #252525;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 20px;
+        }
+        
+        .status-label {
+            font-size: 12px;
+            color: #8b8b8b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .status-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-healthy {
+            background: #4caf50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+        }
+        
+        .status-unhealthy {
+            background: #f44336;
+            box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+        }
+        
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .card {
+            background: #252525;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .card-icon {
+            font-size: 20px;
+            color: #ff7f50;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #c4c4c4;
+            margin-bottom: 8px;
+        }
+        
+        input[type="text"],
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #ff7f50;
+            background: #202020;
+        }
+        
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #ff7f50;
+            cursor: pointer;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #c4c4c4;
+            cursor: pointer;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ff7f50 0%, #ff6347 100%);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ff8c5a 0%, #ff7057 100%);
+            box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #333;
+            color: #e0e0e0;
+        }
+        
+        .btn-secondary:hover {
+            background: #404040;
+        }
+        
+        .btn-test {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            color: #4caf50;
+        }
+        
+        .btn-test:hover {
+            background: rgba(76, 175, 80, 0.3);
+        }
+        
+        /* Alerts */
+        .alert {
+            padding: 14px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        
+        .alert.show {
+            display: flex;
+        }
+        
+        .alert-success {
+            background: rgba(76, 175, 80, 0.15);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+        
+        .alert-warning {
+            background: rgba(255, 152, 0, 0.15);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            color: #ff9800;
+        }
+        
+        .alert-error {
+            background: rgba(244, 67, 54, 0.15);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+        
+        /* Password Strength Meter */
+        .password-strength-container {
+            margin-top: 8px;
+        }
+        
+        .password-strength-bar-wrapper {
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            border-radius: 3px;
+        }
+        
+        .strength-0 { width: 0%; background: transparent; }
+        .strength-1 { width: 25%; background: #dc3545; }
+        .strength-2 { width: 50%; background: #ffc107; }
+        .strength-3 { width: 75%; background: #17a2b8; }
+        .strength-4 { width: 100%; background: #28a745; }
+        
+        .password-strength-feedback {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 18px;
+        }
+        
+        .strength-text {
+            font-weight: 600;
+        }
+        
+        .strength-text-0 { color: #666; }
+        .strength-text-1 { color: #dc3545; }
+        .strength-text-2 { color: #ffc107; }
+        .strength-text-3 { color: #17a2b8; }
+        .strength-text-4 { color: #28a745; }
+        
+        .strength-warning {
+            color: #ff6b6b;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        
+        .strength-suggestions {
+            color: #8b8b8b;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        
+        .strength-crack-time {
+            color: #666;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        
+        /* Log Container */
+        .log-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .log-container {
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            padding: 15px;
+            height: 500px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .log-line {
+            padding: 4px 0;
+            color: #8b8b8b;
+            line-height: 1.4;
+        }
+        
+        .log-error {
+            color: #f44336;
+        }
+        
+        .log-warning {
+            color: #ff9800;
+        }
+        
+        .log-info {
+            color: #4caf50;
+        }
+        
+        /* Connection Tests */
+        .connection-tests {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .test-card {
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .test-card h4 {
+            font-size: 16px;
+            color: #e0e0e0;
+            font-weight: 500;
+        }
+        
+        .test-status {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .test-pending {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9e9e9e;
+        }
+        
+        .test-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .test-failed {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        /* Webhook Info */
+        .webhook-url-container {
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .webhook-url {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #ff7f50;
+            word-break: break-all;
+        }
+        
+        /* Password Change Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: #252525;
+            border-radius: 6px;
+            padding: 30px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid #333;
+        }
+        
+        .modal-header {
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        .modal-close {
+            float: right;
+            font-size: 24px;
+            color: #8b8b8b;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .modal-close:hover {
+            color: #ff7f50;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+            }
+            
+            .sidebar-header .app-name,
+            .sidebar-footer .user-info,
+            .nav-item span {
+                display: none;
+            }
+            
+            .nav-item {
+                justify-content: center;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="/static/images/issuerr-logo.png" alt="Issuerr" class="logo" onerror="this.style.display='none'">
+            <div class="app-name">Issuerr</div>
+        </div>
+        
+        <nav class="nav-menu">
+            <div class="nav-item active" onclick="switchSection('config')">
+                <span class="nav-icon">⚙️</span>
+                <span>Configuration</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('logs')">
+                <span class="nav-icon">📋</span>
+                <span>Logs</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('test')">
+                <span class="nav-icon">🔌</span>
+                <span>Connection Tests</span>
+            </div>
+            <div class="nav-item" onclick="showPasswordModal()">
+                <span class="nav-icon">🔐</span>
+                <span>Change Password</span>
+            </div>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <span>👤</span>
+                <span>{{ username }}</span>
+            </div>
+            <button class="btn-logout" onclick="window.location.href='/logout'">Sign Out</button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-card">
+                <div class="status-label">Queue Size</div>
+                <div class="status-value" id="queueSize">-</div>
+            </div>
+            <div class="status-card">
+                <div class="status-label">Uptime</div>
+                <div class="status-value" id="uptime">-</div>
+            </div>
+            <div class="status-card">
+                <div class="status-label">Worker Status</div>
+                <div class="status-value">
+                    <span class="status-indicator status-healthy"></span>
+                    <span>Running</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Configuration Section -->
+        <div id="configSection" class="content-section active">
+            <div class="page-header">
+                <h1 class="page-title">Configuration</h1>
+                <p class="page-subtitle">Configure your Overseerr, Sonarr, and Radarr connections</p>
+            </div>
+            
+            <div id="successAlert" class="alert alert-success">
+                <span>✓</span>
+                <span>Configuration saved successfully!</span>
+            </div>
+            
+            <div id="warningAlert" class="alert alert-warning">
+                <span>⚠</span>
+                <span>Configuration saved but some services are unreachable</span>
+            </div>
+            
+            <div id="errorAlert" class="alert alert-error">
+                <span>✗</span>
+                <span id="errorMessage">An error occurred</span>
+            </div>
+            
+            <form id="configForm">
+                <!-- Overseerr Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">👁️</span>
+                        <h2 class="card-title">Overseerr Configuration</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>URL</label>
+                        <input type="text" name="overseerr.url" placeholder="http://overseerr:5055" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="password" name="overseerr.api_key" placeholder="Enter API key" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Timeout (seconds)</label>
+                        <input type="number" name="overseerr.timeout" min="5" max="300" value="30">
+                    </div>
+                </div>
+                
+                <!-- Sonarr Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">📺</span>
+                        <h2 class="card-title">Sonarr Configuration</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>URL</label>
+                        <input type="text" name="sonarr.url" placeholder="http://sonarr:8989" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="password" name="sonarr.api_key" placeholder="Enter API key" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Timeout (seconds)</label>
+                        <input type="number" name="sonarr.timeout" min="5" max="300" value="30">
+                    </div>
+                </div>
+                
+                <!-- Radarr Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🎬</span>
+                        <h2 class="card-title">Radarr Configuration</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>URL</label>
+                        <input type="text" name="radarr.url" placeholder="http://radarr:7878" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="password" name="radarr.api_key" placeholder="Enter API key" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Timeout (seconds)</label>
+                        <input type="number" name="radarr.timeout" min="5" max="300" value="30">
+                    </div>
+                </div>
+                
+                <!-- Webhook Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🔗</span>
+                        <h2 class="card-title">Webhook Configuration</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Webhook URL (Copy this to Overseerr)</label>
+                        <div class="webhook-url-container">
+                            <div class="webhook-url" id="webhookUrl">Loading...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Authorization Header (optional)</label>
+                        <input type="password" name="webhook.auth_header" placeholder="Bearer token or custom auth">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="webhook.enabled" checked>
+                            <span>Enable webhook processing</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Processing Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">⚡</span>
+                        <h2 class="card-title">Processing Settings</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="processing.queue_enabled" checked>
+                            <span>Enable background queue processing</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Retry Attempts</label>
+                        <input type="number" name="processing.retry_attempts" min="0" max="10" value="3">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Retry Delay (seconds)</label>
+                        <input type="number" name="processing.retry_delay" min="1" max="60" value="5">
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn-primary">Save Configuration</button>
+                    <button type="button" class="btn-secondary" onclick="loadConfig()">Reset</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Logs Section -->
+        <div id="logsSection" class="content-section">
+            <div class="page-header">
+                <h1 class="page-title">Application Logs</h1>
+                <p class="page-subtitle">View recent application activity and errors</p>
+            </div>
+            
+            <div class="card">
+                <div class="log-controls">
+                    <button class="btn-secondary" onclick="loadLogs()">🔄 Refresh Logs</button>
+                    <button class="btn-secondary" onclick="clearLogsDisplay()">🗑️ Clear Display</button>
+                </div>
+                <div class="log-container" id="logContainer">
+                    Loading logs...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Section -->
+        <div id="testSection" class="content-section">
+            <div class="page-header">
+                <h1 class="page-title">Connection Tests</h1>
+                <p class="page-subtitle">Test connectivity to all configured services</p>
+            </div>
+            
+            <div class="card">
+                <button class="btn-test" onclick="testConnections()">🔌 Run Connection Tests</button>
+                
+                <div class="connection-tests">
+                    <div class="test-card">
+                        <h4>Overseerr</h4>
+                        <span class="test-status test-pending" id="test-overseerr">Not tested</span>
+                    </div>
+                    <div class="test-card">
+                        <h4>Sonarr</h4>
+                        <span class="test-status test-pending" id="test-sonarr">Not tested</span>
+                    </div>
+                    <div class="test-card">
+                        <h4>Radarr</h4>
+                        <span class="test-status test-pending" id="test-radarr">Not tested</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-close" onclick="hidePasswordModal()">×</span>
+                <h2 class="modal-title">Change Password</h2>
+            </div>
+            
+            <div id="passwordSuccess" class="alert alert-success">
+                <span>✓</span>
+                <span>Password changed successfully!</span>
+            </div>
+            
+            <div id="passwordError" class="alert alert-error">
+                <span>✗</span>
+                <span id="passwordErrorMessage">An error occurred</span>
+            </div>
+            
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="currentPassword" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPassword" required>
+                    
+                    <!-- Password Strength Meter -->
+                    <div class="password-strength-container" id="change-strength-container" style="display: none;">
+                        <div class="password-strength-bar-wrapper">
+                            <div class="password-strength-bar strength-0" id="change-strength-bar"></div>
+                        </div>
+                        <div class="password-strength-feedback">
+                            <span class="strength-text strength-text-0" id="change-strength-text">Checking...</span>
+                            <span id="change-strength-icon"></span>
+                        </div>
+                        <div class="strength-warning" id="change-strength-warning"></div>
+                        <div class="strength-suggestions" id="change-strength-suggestions"></div>
+                        <div class="strength-crack-time" id="change-strength-crack-time"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn-primary">Change Password</button>
+                    <button type="button" class="btn-secondary" onclick="hidePasswordModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function switchSection(section) {
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Update sections
+            document.querySelectorAll('.content-section').forEach(s => {
+                s.classList.remove('active');
+            });
+            document.getElementById(section + 'Section').classList.add('active');
+            
+            // Load data if needed
+            if (section === 'logs') {
+                loadLogs();
+            }
+        }
+        
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                document.querySelector('[name="overseerr.url"]').value = config.overseerr.url;
+                document.querySelector('[name="overseerr.api_key"]').value = config.overseerr.api_key;
+                document.querySelector('[name="overseerr.timeout"]').value = config.overseerr.timeout || 30;
+                
+                document.querySelector('[name="sonarr.url"]').value = config.sonarr.url;
+                document.querySelector('[name="sonarr.api_key"]').value = config.sonarr.api_key;
+                document.querySelector('[name="sonarr.timeout"]').value = config.sonarr.timeout || 30;
+                
+                document.querySelector('[name="radarr.url"]').value = config.radarr.url;
+                document.querySelector('[name="radarr.api_key"]').value = config.radarr.api_key;
+                document.querySelector('[name="radarr.timeout"]').value = config.radarr.timeout || 30;
+                
+                document.querySelector('[name="webhook.auth_header"]').value = config.webhook.auth_header;
+                document.querySelector('[name="webhook.enabled"]').checked = config.webhook.enabled !== false;
+                
+                document.querySelector('[name="processing.queue_enabled"]').checked = config.processing?.queue_enabled !== false;
+                document.querySelector('[name="processing.retry_attempts"]').value = config.processing?.retry_attempts || 3;
+                document.querySelector('[name="processing.retry_delay"]').value = config.processing?.retry_delay || 5;
+                
+                updateWebhookUrl();
+            } catch (error) {
+                console.error('Error loading config:', error);
+            }
+        }
+        
+        function updateWebhookUrl() {
+            const webhookUrl = `${window.location.protocol}//${window.location.host}/api/webhook`;
+            document.getElementById('webhookUrl').textContent = webhookUrl;
+        }
+        
+        document.getElementById('configForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const config = {
+                overseerr: {
+                    url: formData.get('overseerr.url'),
+                    api_key: formData.get('overseerr.api_key'),
+                    timeout: parseInt(formData.get('overseerr.timeout'))
+                },
+                sonarr: {
+                    url: formData.get('sonarr.url'),
+                    api_key: formData.get('sonarr.api_key'),
+                    timeout: parseInt(formData.get('sonarr.timeout'))
+                },
+                radarr: {
+                    url: formData.get('radarr.url'),
+                    api_key: formData.get('radarr.api_key'),
+                    timeout: parseInt(formData.get('radarr.timeout'))
+                },
+                webhook: {
+                    auth_header: formData.get('webhook.auth_header'),
+                    enabled: formData.get('webhook.enabled') === 'on'
+                },
+                processing: {
+                    queue_enabled: formData.get('processing.queue_enabled') === 'on',
+                    retry_attempts: parseInt(formData.get('processing.retry_attempts')),
+                    retry_delay: parseInt(formData.get('processing.retry_delay'))
+                }
+            };
+            
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showAlert('success');
+                } else if (result.status === 'warning') {
+                    showAlert('warning');
+                } else {
+                    document.getElementById('errorMessage').textContent = result.errors?.join(', ') || result.message || 'Unknown error';
+                    showAlert('error');
+                }
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = error.message;
+                showAlert('error');
+            }
+        });
+        
+        function showAlert(type) {
+            document.querySelectorAll('.alert').forEach(a => a.classList.remove('show'));
+            const alert = document.getElementById(type + 'Alert');
+            alert.classList.add('show');
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+        
+        async function loadLogs() {
+            try {
+                const response = await fetch('/api/logs?lines=100');
+                const data = await response.json();
+                
+                const container = document.getElementById('logContainer');
+                container.innerHTML = data.logs.map(line => {
+                    let className = 'log-line';
+                    if (line.includes('ERROR')) className += ' log-error';
+                    else if (line.includes('WARNING')) className += ' log-warning';
+                    else if (line.includes('INFO')) className += ' log-info';
+                    
+                    return `<div class="${className}">${escapeHtml(line)}</div>`;
+                }).join('');
+                
+                container.scrollTop = container.scrollHeight;
+            } catch (error) {
+                document.getElementById('logContainer').innerHTML = 
+                    `<div class="log-error">Error loading logs: ${error.message}</div>`;
+            }
+        }
+        
+        function clearLogsDisplay() {
+            document.getElementById('logContainer').innerHTML = '';
+        }
+        
+        async function testConnections() {
+            const tests = ['overseerr', 'sonarr', 'radarr'];
+            
+            tests.forEach(test => {
+                const el = document.getElementById(`test-${test}`);
+                el.className = 'test-status test-pending';
+                el.textContent = 'Testing...';
+            });
+            
+            try {
+                const response = await fetch('/api/test', {
+                    method: 'POST'
+                });
+                const results = await response.json();
+                
+                tests.forEach(test => {
+                    const el = document.getElementById(`test-${test}`);
+                    if (results[test]) {
+                        el.className = 'test-status test-success';
+                        el.textContent = '✓ Connected';
+                    } else {
+                        el.className = 'test-status test-failed';
+                        el.textContent = '✗ Failed';
+                    }
+                });
+            } catch (error) {
+                tests.forEach(test => {
+                    const el = document.getElementById(`test-${test}`);
+                    el.className = 'test-status test-failed';
+                    el.textContent = '✗ Error';
+                });
+            }
+        }
+        
+        async function updateStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+                
+                document.getElementById('queueSize').textContent = stats.queue_size;
+                
+                const hours = Math.floor(stats.uptime / 3600);
+                const minutes = Math.floor((stats.uptime % 3600) / 60);
+                document.getElementById('uptime').textContent = `${hours}h ${minutes}m`;
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function showPasswordModal() {
+            document.getElementById('passwordModal').classList.add('show');
+            document.getElementById('passwordForm').reset();
+            document.querySelectorAll('#passwordModal .alert').forEach(a => a.classList.remove('show'));
+        }
+        
+        function hidePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('show');
+            // Reset strength meter
+            const strengthContainer = document.getElementById('change-strength-container');
+            if (strengthContainer) {
+                strengthContainer.style.display = 'none';
+            }
+        }
+        
+        // Password strength checking for change password
+        let changePasswordStrengthTimeout = null;
+        const newPasswordInput = document.getElementById('newPassword');
+        const changeStrengthContainer = document.getElementById('change-strength-container');
+        const changeStrengthBar = document.getElementById('change-strength-bar');
+        const changeStrengthText = document.getElementById('change-strength-text');
+        const changeStrengthIcon = document.getElementById('change-strength-icon');
+        const changeStrengthWarning = document.getElementById('change-strength-warning');
+        const changeStrengthSuggestions = document.getElementById('change-strength-suggestions');
+        const changeStrengthCrackTime = document.getElementById('change-strength-crack-time');
+        
+        newPasswordInput.addEventListener('input', function() {
+            const password = this.value;
+            
+            // Clear previous timeout
+            if (changePasswordStrengthTimeout) {
+                clearTimeout(changePasswordStrengthTimeout);
+            }
+            
+            if (!password) {
+                changeStrengthContainer.style.display = 'none';
+                return;
+            }
+            
+            changeStrengthContainer.style.display = 'block';
+            changeStrengthText.textContent = 'Checking...';
+            changeStrengthText.className = 'strength-text strength-text-0';
+            changeStrengthBar.className = 'password-strength-bar strength-0';
+            changeStrengthIcon.textContent = '';
+            
+            // Debounce API calls (wait 500ms after user stops typing)
+            changePasswordStrengthTimeout = setTimeout(() => {
+                checkChangePasswordStrength(password);
+            }, 500);
+        });
+        
+        async function checkChangePasswordStrength(password) {
+            try {
+                const response = await fetch('/api/check-password-strength', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password, username: '' })
+                });
+                
+                const data = await response.json();
+                
+                // Update strength bar
+                changeStrengthBar.className = `password-strength-bar strength-${data.score}`;
+                
+                // Update strength text
+                changeStrengthText.textContent = data.score_text;
+                changeStrengthText.className = `strength-text strength-text-${data.score}`;
+                
+                // Update icon
+                if (data.is_acceptable) {
+                    changeStrengthIcon.textContent = '✓';
+                } else {
+                    changeStrengthIcon.textContent = '✗';
+                }
+                
+                // Update warning
+                if (data.warning) {
+                    changeStrengthWarning.textContent = `⚠️ ${data.warning}`;
+                    changeStrengthWarning.style.display = 'block';
+                } else {
+                    changeStrengthWarning.style.display = 'none';
+                }
+                
+                // Update suggestions
+                if (data.suggestions && data.suggestions.length > 0) {
+                    changeStrengthSuggestions.textContent = `💡 ${data.suggestions.join('. ')}`;
+                    changeStrengthSuggestions.style.display = 'block';
+                } else {
+                    changeStrengthSuggestions.style.display = 'none';
+                }
+                
+                // Update crack time
+                if (data.crack_time && data.is_acceptable) {
+                    changeStrengthCrackTime.textContent = `⏱️ Time to crack: ${data.crack_time}`;
+                    changeStrengthCrackTime.style.display = 'block';
+                } else {
+                    changeStrengthCrackTime.style.display = 'none';
+                }
+                
+            } catch (error) {
+                console.error('Error checking password strength:', error);
+                changeStrengthText.textContent = 'Error checking strength';
+                changeStrengthText.className = 'strength-text strength-text-0';
+            }
+        }
+        
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                document.getElementById('passwordErrorMessage').textContent = 'New passwords do not match';
+                document.getElementById('passwordError').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('passwordError').classList.remove('show');
+                }, 3000);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        current_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    document.getElementById('passwordSuccess').classList.add('show');
+                    setTimeout(() => {
+                        hidePasswordModal();
+                    }, 2000);
+                } else {
+                    document.getElementById('passwordErrorMessage').textContent = result.message;
+                    document.getElementById('passwordError').classList.add('show');
+                    setTimeout(() => {
+                        document.getElementById('passwordError').classList.remove('show');
+                    }, 3000);
+                }
+            } catch (error) {
+                document.getElementById('passwordErrorMessage').textContent = error.message;
+                document.getElementById('passwordError').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('passwordError').classList.remove('show');
+                }, 3000);
+            }
+        });
+        
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                hidePasswordModal();
+            }
+        });
+        
+        // Load config on page load
+        loadConfig();
+        updateWebhookUrl();
+        
+        // Update stats every 10 seconds
+        setInterval(updateStats, 10000);
+        updateStats();
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js')
+                .then((registration) => {
+                    console.log('ServiceWorker registered:', registration.scope);
+                })
+                .catch((error) => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+        }
+    </script>
+</body>
+</html>

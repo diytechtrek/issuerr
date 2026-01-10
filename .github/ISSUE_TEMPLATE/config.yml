@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & Discussions
+    url: https://github.com/yourusername/issuerr/discussions
+    about: Ask questions and discuss ideas in GitHub Discussions
+  - name: Security Issues
+    url: https://github.com/yourusername/issuerr/security/advisories/new
+    about: Report security vulnerabilities privately
