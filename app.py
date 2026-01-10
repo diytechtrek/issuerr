@@ -801,8 +801,8 @@ def process_movie_issue(issue_id, media, config):
         app.logger.info(f"Step 1: Looking up movie with TMDB ID {tmdb_id}")
         response = make_request(
             'GET',
-            f"{radarr_url}/api/v3/movie/lookup/tmdb",
-            params={'tmdbId': tmdb_id, 'apikey': radarr_key},
+            f"{radarr_url}/api/v3/movie/lookup",
+            params={'term': f'tmdb:{tmdb_id}', 'apikey': radarr_key},
             timeout=timeout
         )
         movie_data = response.json()
@@ -810,7 +810,8 @@ def process_movie_issue(issue_id, media, config):
         if not movie_data:
             raise ValueError(f"Movie not found with TMDB ID {tmdb_id}")
         
-        movie_id = movie_data['id']
+        app.logger.info(movie_data)
+        movie_id = movie_data[0]['id']
         app.logger.info(f"Found movie ID: {movie_id}")
         
         time.sleep(0.5)
@@ -833,15 +834,14 @@ def process_movie_issue(issue_id, media, config):
         
         time.sleep(0.5)
         
-        app.logger.info(f"Step 3: Getting history for movieId={movie_id}, eventType=1")
+        app.logger.info(f"Step 3: Getting history for movieId={movie_id}, eventType=grabbed")
         response = make_request(
             'GET',
             f"{radarr_url}/api/v3/history/movie",
-            params={'movieId': movie_id, 'apikey': radarr_key, 'eventType': '1'},
+            params={'movieId': movie_id, 'apikey': radarr_key, 'eventType': 'grabbed'},
             timeout=timeout
         )
         history = response.json()
-        app.logger.info(f"History response has {len(history.get('records', []))} records")
         
         time.sleep(0.2)
         
@@ -856,8 +856,8 @@ def process_movie_issue(issue_id, media, config):
         
         time.sleep(0.2)
         
-        if history.get('records') and len(history['records']) > 0:
-            history_id = history['records'][0]['id']
+        if history and len(history) > 0:
+            history_id = history[0]['id']
             app.logger.info(f"Step 5: Marking history {history_id} as failed")
             make_request(
                 'POST',
