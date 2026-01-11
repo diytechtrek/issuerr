@@ -810,7 +810,7 @@ def process_movie_issue(issue_id, media, config):
         if not movie_data:
             raise ValueError(f"Movie not found with TMDB ID {tmdb_id}")
         
-        app.logger.info(movie_data)
+        #app.logger.info(movie_data)
         movie_id = movie_data[0]['id']
         app.logger.info(f"Found movie ID: {movie_id}")
         
