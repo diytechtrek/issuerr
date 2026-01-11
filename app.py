@@ -805,7 +805,7 @@ def process_movie_issue(issue_id, media, config):
             params={'term': f'tmdb:{tmdb_id}', 'apikey': radarr_key},
             timeout=timeout
         )
-        movie_data = response.json()
+        #movie_data = response.json()
         
         if not movie_data:
             raise ValueError(f"Movie not found with TMDB ID {tmdb_id}")

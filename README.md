@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Automated issue handler for Overseerr, Sonarr & Radarr</strong>
+  <strong>Automated issue handler for Overseerr/Jellyseerr, Sonarr & Radarr</strong>
 </p>
 
 <p align="center">
@@ -21,12 +21,12 @@
 
 ## Overview
 
-**Issuerr** automatically handles media quality issues reported through [Overseerr](https://overseerr.dev/). When a user reports an issue with a movie or TV episode, Issuerr automatically:
+**Issuerr** automatically handles media quality issues reported through [Overseerr](https://overseerr.dev/)/[Jellyseerr](https://seerr.dev/). When a user reports an issue with a movie or TV episode, Issuerr automatically:
 
 1. Deletes the problematic media file from Radarr/Sonarr
 2. Marks the download history as failed
 3. Triggers a new search for a better quality release
-4. Comments on the issue in Overseerr
+4. Comments on the issue in Overseerr/Jellyseerr
 5. Closes the issue automatically
 
 This eliminates the manual workflow of handling quality complaints and re-downloading media.
@@ -35,11 +35,18 @@ This eliminates the manual workflow of handling quality complaints and re-downlo
 
 - 🎬 **Automatic Issue Resolution** - Handles movie and TV show issues automatically
 - 🔐 **Secure Web Dashboard** - Password-protected configuration interface
-- 🌐 **Webhook Integration** - Receives notifications directly from Overseerr
+- 🌐 **Webhook Integration** - Receives notifications directly from Overseerr/Jellyseerr
 - 📊 **Real-time Logging** - View processing logs from the dashboard
 - 🔄 **Queue System** - Reliable asynchronous webhook processing
 - 🐳 **Docker Ready** - Simple deployment with Docker Compose
 - 🔒 **Security First** - bcrypt password hashing, rate limiting, secure session handling
+
+## Todo
+
+- 🌐 **Improve UI/UX** - Improve responsiveness, hamburger menu navigation for small devices
+- 📊 **Reduce log clutter** - Remove some repetitive logging when app idle or saving config
+- 📺 **Season logic** - When a season is report trigger season search, instead of each episodes
+- 🔑 **Optional Login** - Optionally allow no authentication for use locally or with SSO setup
 
 ## Screenshots
 
@@ -60,7 +67,7 @@ This eliminates the manual workflow of handling quality complaints and re-downlo
 ## Requirements
 
 - Docker and Docker Compose
-- Overseerr instance with webhook support
+- Overseerr/Jellyseerr instance with webhook support
 - Sonarr v3+ (for TV shows)
 - Radarr v3+ (for movies)
 - API keys for all services
@@ -129,11 +136,11 @@ On first launch, you'll be prompted to create an administrator account:
 
 After logging in, configure your services in the Settings tab:
 
-#### Overseerr
+#### Overseerr/Jellyseerr
 | Setting | Description |
 |---------|-------------|
-| URL | Full URL to your Overseerr instance (e.g., `http://overseerr:5055`) |
-| API Key | Found in Overseerr → Settings → General |
+| URL | Full URL to your Overseerr/Jellyseerr instance (e.g., `http://overseerr:5055`) |
+| API Key | Found in Overseerr/Jellyseerr → Settings → General |
 | Timeout | Request timeout in seconds (default: 30) |
 
 #### Sonarr
@@ -150,9 +157,9 @@ After logging in, configure your services in the Settings tab:
 | API Key | Found in Radarr → Settings → General → Security |
 | Timeout | Request timeout in seconds (default: 30) |
 
-### Overseerr Webhook Setup
+### Overseerr/Jellyseerr Webhook Setup
 
-1. In Overseerr, go to **Settings → Notifications → Webhook**
+1. In Overseerr/Jellyseerr, go to **Settings → Notifications → Webhook**
 2. Enable the webhook agent
 3. Configure:
    - **Webhook URL:** `http://issuerr:5000/api/webhook`
@@ -182,7 +189,7 @@ id $USER
 
 | Endpoint | Method | Auth | Description |
 |----------|--------|------|-------------|
-| `/api/webhook` | POST | Optional | Receives Overseerr webhooks |
+| `/api/webhook` | POST | Optional | Receives Overseerr/Jellyseerr webhooks |
 | `/api/config` | GET/POST | Required | Get/update configuration |
 | `/api/health` | GET | None | Health check for monitoring |
 | `/api/stats` | GET | Required | Queue and uptime statistics |
@@ -224,7 +231,8 @@ server {
 
 ```
 ┌─────────────┐     Webhook      ┌──────────┐
-│  Overseerr  │ ───────────────► │ Issuerr  │
+│  Overseerr /│ ───────────────► │ Issuerr  │
+│  Jellyseerr │                  │          │
 │  (User      │                  │          │
 │   reports   │                  │          │
 │   issue)    │                  │          │
@@ -233,15 +241,16 @@ server {
                     ┌─────────────────┼─────────────────┐
                     │                 │                 │
                     ▼                 ▼                 ▼
-             ┌──────────┐      ┌──────────┐      ┌───────────┐
-             │  Sonarr  │      │  Radarr  │      │ Overseerr │
-             │          │      │          │      │           │
-             │ 1. Delete│      │ 1. Delete│      │ 1. Add    │
-             │    file  │      │    file  │      │    comment│
-             │ 2. Mark  │      │ 2. Mark  │      │ 2. Close  │
-             │    failed│      │    failed│      │    issue  │
-             │ 3. Search│      │ 3. Search│      │           │
-             └──────────┘      └──────────┘      └───────────┘
+             ┌───────────┐      ┌───────────┐      ┌─────────────┐
+             │  Sonarr   │      │  Radarr   │      │ Overseerr / │
+             │           │      │           │      │ Jellyseerr  │
+             │           │      │           │      │             │
+             │ 1. Delete │      │ 1. Delete │      │ 1. Add      │
+             │    file   │      │    file   │      │    comment  │
+             │ 2. Mark   │      │ 2. Mark   │      │ 2. Close    │
+             │    failed │      │    failed │      │    issue    │
+             │ 3. Search │      │ 3. Search │      │             │
+             └───────────┘      └───────────┘      └─────────────┘
 ```
 
 ## Troubleshooting
@@ -265,8 +274,8 @@ Common causes:
 <details>
 <summary><strong>Webhooks not received</strong></summary>
 
-1. Check Overseerr webhook URL is correct
-2. Verify Issuerr is accessible from Overseerr's network
+1. Check Overseerr/Jellyseerr webhook URL is correct
+2. Verify Issuerr is accessible from Overseerr/Jellyseerr's network
 3. Check if authorization header matches (if used)
 4. View Issuerr logs for errors
 </details>
@@ -361,6 +370,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - [Overseerr](https://overseerr.dev/) - Request management and discovery
+- [Jellyseerr](https://seerr.dev/) - Request management and discovery
 - [Sonarr](https://sonarr.tv/) - TV show management
 - [Radarr](https://radarr.video/) - Movie management
 - [Flask](https://flask.palletsprojects.com/) - Web framework
